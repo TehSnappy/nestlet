@@ -14,6 +14,10 @@ defmodule Fw.Application do
         # {Fw.Worker, arg},
       ] ++ children(Nerves.Runtime.mix_target())
 
+    if target() != :host do
+      VintageNetWizard.run_if_unconfigured()
+    end
+
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Fw.Supervisor]
@@ -35,5 +39,9 @@ defmodule Fw.Application do
       # Starts a worker by calling: Fw.Worker.start_link(arg)
       # {Fw.Worker, arg},
     ]
+  end
+
+  def target() do
+    Application.get_env(:fw, :target)
   end
 end

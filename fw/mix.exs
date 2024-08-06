@@ -55,6 +55,11 @@ defmodule Fw.MixProject do
       # Dependencies for all targets except :host
       {:nerves_pack, "~> 0.7.1", targets: @all_targets},
 
+      # added for nestlet app
+      {:vintage_net_wizard, "~> 0.4", targets: @all_targets},
+      {:pigpiox, "~> 0.1", targets: @all_targets},
+      {:nestlet, path: "../nestlet"},
+
       # Dependencies for specific targets
       # NOTE: It's generally low risk and recommended to follow minor version
       # bumps to Nerves systems. Since these include Linux kernel and Erlang
