@@ -55,6 +55,9 @@ config :nestlet, NestletWeb.Endpoint,
 # Enable dev routes for dashboard and mailbox
 config :nestlet, dev_routes: true
 
+config :nestlet, Nestlet.Nest.State, state_location: "/Users/steve/nest_data.cub"
+config :nestlet, Nestlet.Nest.Heartbeat, beat_interval: 120_000
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 
@@ -73,3 +76,5 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+import_config "dev.secret.exs"

@@ -7,12 +7,20 @@ defmodule Nestlet.Application do
 
   @impl true
   def start(_type, _args) do
+    db_location =
+      Application.get_env(:nestlet, Nestlet.Nest.State)
+      |> Keyword.fetch!(:state_location)
+
     children = [
       NestletWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:nestlet, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Nestlet.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Nestlet.Finch},
+      {CubDB, data_dir: db_location, name: Nestlet.Nest.State.database_name()},
+      Nestlet.Nest.State,
+      Nestlet.Nest.Heartbeat,
+
       # Start a worker by calling: Nestlet.Worker.start_link(arg)
       # {Nestlet.Worker, arg},
       # Start to serve requests, typically the last entry
