@@ -49,11 +49,6 @@ config :vintage_net,
   regulatory_domain: "00",
   config: [
     {"usb0", %{type: VintageNetDirect}},
-    {"eth0",
-     %{
-       type: VintageNetEthernet,
-       ipv4: %{method: :dhcp}
-     }},
     {"wlan0", %{type: VintageNetWiFi}}
   ]
 
@@ -66,7 +61,7 @@ config :mdns_lite,
   # because otherwise any of the devices may respond to nerves.local leading to
   # unpredictable behavior.
 
-  hosts: [:hostname, "nerves"],
+  hosts: [:hostname, "nestlet"],
   ttl: 120,
 
   # Advertise the following services over mDNS.
@@ -87,6 +82,31 @@ config :mdns_lite,
       port: 4369
     }
   ]
+
+config :vintage_net_wizard,
+  port: 4001,
+  captive_portal: false
+
+config :nestlet, NestletWeb.Endpoint,
+  url: [host: "nestlet.local", port: 80, scheme: "http"],
+  http: [
+    # Enable IPv6 and bind on all interfaces.
+    # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
+    # See the documentation on https://hexdocs.pm/bandit/Bandit.html#t:options/0
+    # for details about using IPv6 vs IPv4 and loopback vs public addresses.
+    ip: {0, 0, 0, 0, 0, 0, 0, 0},
+    port: 80
+  ],
+  adapter: Bandit.PhoenixAdapter,
+  render_errors: [
+    formats: [html: NestletWeb.ErrorHTML, json: NestletWeb.ErrorJSON],
+    layout: false
+  ],
+  pubsub_server: Nestlet.PubSub,
+  check_origin: ["//nestlet.local"],
+  server: true
+
+import_config "target.secret.exs"
 
 # Import target specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
