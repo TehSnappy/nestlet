@@ -50,6 +50,16 @@ defmodule Nestlet.Nest.State do
     {:reply, new_state, new_state}
   end
 
+  def get_device(_, nil), do: nil
+
+  def get_device(%State{device_list: device_list}, device_id) do
+    Enum.find(device_list, &(&1.display_id == device_id))
+  end
+
+  def get_device(device_list, device_id) do
+    Enum.find(device_list, &(&1.display_id == device_id))
+  end
+
   defp initial_data do
     project_id =
       Application.get_env(:nestlet, State)
