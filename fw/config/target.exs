@@ -87,6 +87,9 @@ config :vintage_net_wizard,
   port: 4001,
   captive_portal: false
 
+config :nestlet, Nestlet.Nest.State, state_location: "/root/cub_db/nest/"
+config :nestlet, Nestlet.Nest.Heartbeat, beat_interval: 20_000
+
 config :nestlet, NestletWeb.Endpoint,
   url: [host: "nestlet.local", port: 80, scheme: "http"],
   http: [

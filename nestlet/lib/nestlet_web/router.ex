@@ -17,7 +17,7 @@ defmodule NestletWeb.Router do
   scope "/", NestletWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", ThermostatLive.Index, :index
   end
 
   # Other scopes may use custom stacks.

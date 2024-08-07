@@ -276,7 +276,7 @@ defmodule NestletWeb.CoreComponents do
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file month number password
-               range search select tel text textarea time url week)
+               radio range search select tel text textarea time url week)
 
   attr :field, Phoenix.HTML.FormField,
     doc: "a form field struct retrieved from the form, for example: @form[:email]"
@@ -290,6 +290,8 @@ defmodule NestletWeb.CoreComponents do
   attr :rest, :global,
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
                 multiple pattern placeholder readonly required rows size step)
+
+  attr :status, :string, default: nil, doc: "the status"
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
     errors = if Phoenix.Component.used_input?(field), do: field.errors, else: []
@@ -361,6 +363,28 @@ defmodule NestletWeb.CoreComponents do
         ]}
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
+      <.error :for={msg <- @errors}><%= msg %></.error>
+    </div>
+    """
+  end
+
+  def input(%{type: "radio"} = assigns) do
+    ~H"""
+    <div class="p-3">
+      <input
+        id={@id}
+        name={@name}
+        type="radio"
+        class={[
+          "h-4 w-4 border-gray-300 bg-gray-100 text-primary-600 focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-primary-600]"
+        ]}
+        checked={@checked}
+        {@rest}
+      />
+      <label for={@id} class="ms-2 text-gray-500 dark:text-gray-400">
+        <%= "#{@label} #{@status}" %>
+      </label>
+
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
