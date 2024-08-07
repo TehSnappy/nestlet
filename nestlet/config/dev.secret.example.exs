@@ -1,6 +1,6 @@
 import Config
 
-config :nestlet, NestMonitorWeb.Endpoint,
+config :nestlet, NestletWeb.Endpoint,
   secret_key_base: "xxx",
   live_view: [signing_salt: "xxx"]
 

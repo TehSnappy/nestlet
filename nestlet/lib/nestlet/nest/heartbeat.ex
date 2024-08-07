@@ -30,11 +30,11 @@ defmodule Nestlet.Nest.Heartbeat do
   defp reschedule_device_check(%State{is_rate_limited?: true}, _state),
     do: Process.send_after(self(), :check_devices, @ten_minutes, [])
 
-  defp reschedule_device_check(_results, %{beat_interval: beat_interval}),
+  defp reschedule_device_check(_results, %__MODULE__{beat_interval: beat_interval}),
     do: Process.send_after(self(), :check_devices, beat_interval, [])
 
   defp initial_data() do
-    prefs = Application.get_env(:nestlet, Nestlet.Nest.Heartbeat)
+    prefs = Application.get_env(:nestlet, __MODULE__)
 
     %__MODULE__{
       beat_interval: Keyword.get(prefs, :beat_interval, 10_000)
