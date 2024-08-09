@@ -8,7 +8,7 @@ defmodule NestletWeb.ThermostatLive.Index do
   def mount(_params, _session, socket) do
     if connected?(socket), do: Nest.subscribe()
 
-    {:ok, assign(socket, nest_state: Nest.get_state())}
+    {:ok, assign_nest_state(socket, Nest.get_state())}
   end
 
   @impl true
@@ -18,14 +18,14 @@ defmodule NestletWeb.ThermostatLive.Index do
 
   @impl true
   def handle_info({:state_updated, %NestState{} = nest_state}, socket) do
-    {:noreply, assign(socket, nest_state: nest_state)}
+    {:noreply, assign_nest_state(socket, nest_state)}
   end
 
   @impl true
   def handle_event("nest-select", %{"therm-id" => device_id}, socket) do
     new_state = Nest.set_current_device(device_id)
 
-    {:noreply, assign(socket, nest_state: new_state)}
+    {:noreply, assign_nest_state(socket, new_state)}
   end
 
   def error_messages(%{project_id: nil}), do: "No project id set, please check your configuration"
@@ -40,4 +40,10 @@ defmodule NestletWeb.ThermostatLive.Index do
     do: not is_nil(last_update)
 
   def needs_auth_token?(_), do: false
+
+  defp assign_nest_state(socket, nest_state) do
+    socket
+    |> assign(nest_state: nest_state)
+    |> assign(devices: nest_state.device_list)
+  end
 end
