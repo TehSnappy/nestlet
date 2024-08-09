@@ -30,11 +30,11 @@ defmodule Nestlet.Nest.State do
         is_rate_limited?: false
       )
 
-  def set_state(field_list),
-    do: GenServer.call(__MODULE__, {:set_state, field_list})
-
   def get_state(),
     do: GenServer.call(__MODULE__, :get_state)
+
+  def set_state(field_list),
+    do: GenServer.call(__MODULE__, {:set_state, field_list})
 
   def handle_call(:get_state, _from, state),
     do: {:reply, state, state}
@@ -44,10 +44,23 @@ defmodule Nestlet.Nest.State do
       state
       |> struct(fields_list)
       |> struct(last_update: DateTime.utc_now())
-      |> flush_if_new(state)
+      |> maybe_persist_data(state)
       |> publish()
 
     {:reply, new_state, new_state}
+  end
+
+  defp maybe_persist_data(new_state, state) do
+    maybe_persist_field(new_state, state, :access_token)
+    maybe_persist_field(new_state, state, :refresh_token)
+    maybe_persist_field(new_state, state, :current_device_id)
+
+    new_state
+  end
+
+  defp publish(state) do
+    Phoenix.PubSub.broadcast(Nestlet.PubSub, "devices", {:state_updated, state})
+    state
   end
 
   def get_device(_, nil), do: nil
@@ -58,6 +71,16 @@ defmodule Nestlet.Nest.State do
 
   def get_device(device_list, device_id) do
     Enum.find(device_list, &(&1.display_id == device_id))
+  end
+
+  defp maybe_persist_field(new_state, old_state, field) do
+    new_value = Map.get(new_state, field)
+
+    if new_value == Map.get(old_state, field) do
+      :ok
+    else
+      CubDB.put(database_name(), field, new_value)
+    end
   end
 
   defp initial_data do
@@ -72,38 +95,5 @@ defmodule Nestlet.Nest.State do
       current_device_id: CubDB.get(database_name(), :current_device_id),
       project_id: project_id
     }
-  end
-
-  defp flush_if_new(new_state, state) do
-    flush_access_code(new_state, state)
-    flush_refresh_code(new_state, state)
-    flush_current_device(new_state, state)
-
-    new_state
-  end
-
-  defp flush_access_code(%{access_token: access_token}, %{access_token: access_token}),
-    do: :no_change
-
-  defp flush_access_code(%{access_token: access_token}, _),
-    do: CubDB.put(database_name(), :access_token, access_token)
-
-  defp flush_refresh_code(%{refresh_token: refresh_token}, %{refresh_token: refresh_token}),
-    do: :no_change
-
-  defp flush_refresh_code(%{refresh_token: refresh_token}, _),
-    do: CubDB.put(database_name(), :refresh_token, refresh_token)
-
-  defp flush_current_device(%{current_device_id: current_device_id}, %{
-         current_device_id: current_device_id
-       }),
-       do: :no_change
-
-  defp flush_current_device(%{current_device_id: current_device_id}, _),
-    do: CubDB.put(database_name(), :current_device_id, current_device_id)
-
-  defp publish(state) do
-    Phoenix.PubSub.broadcast(Nestlet.PubSub, "devices", {:state_updated, state})
-    state
   end
 end

@@ -2,11 +2,8 @@
   <%= error_messages(@nest_state) %>
 </h1>
 
-<div
-  :if={@nest_state.device_list != []}
-  class="p-6 align-self-center w-2/3 border border-indigo-600"
->
-  <%= for t <- @nest_state.device_list do %>
+<div :if={@devices != []} class="p-6 align-self-center w-2/3 border border-indigo-600">
+  <%= for t <- @devices do %>
     <.input
       type="radio"
       label={t.display_name}
