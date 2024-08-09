@@ -11,7 +11,7 @@ defmodule Fw.RgbLight do
 
   require Logger
 
-  @off {255, 253, 253}
+  @off {253, 250, 250}
   @red {0, 255, 255}
   @blue {255, 255, 0}
   @orange {95, 95, 255}
